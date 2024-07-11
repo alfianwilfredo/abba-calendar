@@ -25,7 +25,11 @@ function table_event() {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      date: {
+      start_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      end_date: {
         //planning
         type: Sequelize.DATE,
         allowNull: false,
