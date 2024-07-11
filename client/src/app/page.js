@@ -2,7 +2,7 @@
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 import interactionPlugin from "@fullcalendar/interaction" // needed for dayClick
-import { Button, Dialog, DialogPanel, DialogTitle, Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
+import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { useState } from 'react'
 
 export default function Home() {
@@ -13,7 +13,6 @@ export default function Home() {
   function toggleDialog() {
     setIsOpen(!isOpen)
   }
-
   return (
     <>
       <div>
@@ -26,7 +25,7 @@ export default function Home() {
           dateClick={handleDateClick}
         />
       </div>
-
+      
       <Dialog open={isOpen} as="div" className="relative z-10 focus:outline-none" onClose={toggleDialog}>
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
