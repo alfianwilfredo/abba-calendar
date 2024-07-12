@@ -9,6 +9,7 @@ import { INITIAL_EVENTS, createEventId } from './event-utils'
 import { Button, Dialog, DialogPanel, DialogTitle, Description, Field, Input, Label } from '@headlessui/react'
 import clsx from 'clsx'
 import axios from 'axios'
+import moment from 'moment'
 
 export default function DemoApp() {
   const [weekendsVisible, setWeekendsVisible] = useState(true)
@@ -17,39 +18,51 @@ export default function DemoApp() {
   let [isInstructionOpen, setIsInstructionOpen] = useState(false)
   let [name, setName] = useState('')
   let [details, setDetails] = useState('')
+  let [selectedEvent, setSelectedEvent] = useState({})
   let [startDate, setStartDate] = useState('')
   let [endDate, setEndDate] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const {isListOpen, setIsListOpen} = useState(false)
+  let [isListEventOpen, setIsListEventOpen] = useState(false)
   function handleWeekendsToggle() {
     setWeekendsVisible(!weekendsVisible)
   }
   let toggleInstruction = () => setIsInstructionOpen(!isInstructionOpen)
   let toggleCreateEvent = () => setIsCreateEventOpen(!isCreateEventOpen)
+  let toggleDetails = () => setIsDetailsOpen(!isDetailsOpen)
+  let toggleisListOpen = () => setIsListOpen(!isListOpen)
+  let toggleListEvent = () => setIsListEventOpen(!isListEventOpen)
+  useEffect(() => {
+    fetchEvent()
+  }, []);
+
   function handleDateSelect(selectInfo) {
-    let title = prompt('Please enter a new title for your event')
-    console.log(selectInfo);
-    let calendarApi = selectInfo.view.calendar
-
-    calendarApi.unselect() // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay
-      })
-    } else {
-      console.log("no title");
-    }
+    console.log(selectInfo, 'selectInfoselectInfo');
+    toggleCreateEvent()
   }
   function handleEventClick(clickInfo) {
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      clickInfo.event.remove()
-    }
+    fetchDetails(clickInfo.event.id)
   }
 
+  let fetchDetails = async (id) => {
+    console.log(id, 'ididid');
+    let { data } = await axios({
+      method: 'get',
+      url: 'http://localhost:8000/events/details',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      params: {
+        id
+      }
+    })
+    console.log(data.result);
+    if (data.code === 200 && data.result.length) {
+      toggleDetails()
+      setSelectedEvent(data.result[0])
+    }
+  }
   async function fetchEvent() {
     const { data } = await axios({
       method: 'get',
@@ -61,9 +74,7 @@ export default function DemoApp() {
     setCurrentEvents(data.result)
     setIsLoading(false)
   }
-  useEffect(() => {
-    fetchEvent()
-  }, []);
+  
   function handleEvents(events) {
     setCurrentEvents(events)
   }
@@ -83,8 +94,9 @@ export default function DemoApp() {
     })
     if (data.code === 201) {
       fetchEvent()
+      toggleCreateEvent()
     } else {
-      alert(data.message)
+      alert(data.message[0])
     }
   }
 
@@ -110,12 +122,12 @@ export default function DemoApp() {
     <>
     {isLoading ? <div className='flex justify-center items-center  w-screen'>Loading...</div> : (<>
     <div className='flex justify-center items-center w-screen sm:py-12'>
-      <div className='sm:w-3/4 lg:w-4/12'>
+      <div className='flex sm:flex-col lg:flex-row lg:gap-4'>
         <div className=''>
-          <div className='demo-app-sidebar-section'>
+          <div>
             <span className='capitalize'>new here? please read the instructions <button onClick={toggleInstruction}>here</button></span>
           </div>
-          <div className='demo-app-sidebar-section'>
+          <div>
             <label>
               <input
                 type='checkbox'
@@ -125,28 +137,21 @@ export default function DemoApp() {
               Show Weekends
             </label>
           </div>
-          <div className='demo-app-sidebar-section'>
+          <div className='lg:flex lg:flex-row lg:justify-center lg:gap-4'>
+            <div>
             {
               currentEvents.length ? (
-                <button>See all events</button>
+                <button onClick={toggleListEvent} className='bg-white font-semibold capitalize text-black w-full rounded py-2 px-4'>list events</button>
               ) : (
-                <span>No events</span>
+                <span className='bg-white text-black w-full rounded py-2 px-4'>No events</span>
               )
             }
-            <pre>
-              {JSON.stringify(currentEvents)}
-            </pre>
-            <ul>
-              {currentEvents.map((event) => (
-                <SidebarEvent key={event.id} event={event} />
-              ))}
-            </ul>
+            </div>
+            <div>
+              <Button className="bg-white text-black w-full rounded py-2 font-semibold px-4" onClick={toggleCreateEvent}>Create Event</Button>
+            </div>
           </div>
         </div>
-        <div className='py-2'>
-          <Button className="bg-white text-black w-full rounded py-2 font-semibold" onClick={toggleCreateEvent}>Create Event</Button>
-        </div>
-          <div className=''>
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             headerToolbar={{
@@ -160,7 +165,7 @@ export default function DemoApp() {
             selectMirror={true}
             dayMaxEvents={true}
             weekends={weekendsVisible}
-            initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+            initialEvents={currentEvents} // alternatively, use the `events` setting to fetch from a feed
             select={handleDateSelect}
             eventContent={renderEventContent} // custom render function
             eventClick={handleEventClick}
@@ -171,7 +176,6 @@ export default function DemoApp() {
             eventRemove={function(){}}
             */
           />
-        </div>
       </div>
     </div>
     <Dialog open={isCreateEventOpen} as="div" className="relative z-10 focus:outline-none" onClose={toggleCreateEvent}>
@@ -218,7 +222,7 @@ export default function DemoApp() {
                       'mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white',
                       'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
                     )}
-                    type='date'
+                    type='datetime-local'
                     name='start_date'
                     value={startDate}
                     onChange={handleChange}
@@ -226,12 +230,12 @@ export default function DemoApp() {
                   />
                 </Field>
                 <Field>
-                  <input 
+                  <input
                     className={clsx(
                       'mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white',
                       'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
                     )}
-                    type='date'
+                    type='datetime-local'
                     name='end_date'
                     value={endDate}
                     onChange={handleChange}
@@ -276,16 +280,59 @@ export default function DemoApp() {
           </div>
         </div>
       </Dialog>
+      
+      <Dialog open={isDetailsOpen} as="div" className="relative z-10 focus:outline-none" onClose={toggleDetails}>
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <DialogPanel
+              transition
+              className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            >
+              <DialogTitle as="h3" className="text-base/7 font-medium text-white capitalize">
+                event details
+              </DialogTitle>
+              <div className="w-full max-w-md px-4 flex flex-col">
+                <span>name: {selectedEvent.name}</span>
+                <span>details: {selectedEvent.details}</span>
+                <span>start: {selectedEvent.start}</span>
+                <span>end: {moment(selectedEvent.end).calendar()}</span>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog open={isListEventOpen} as="div" className="relative z-10 focus:outline-none" onClose={toggleListEvent}>
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <DialogPanel
+              transition
+              className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            >
+              <DialogTitle as="h3" className="text-base/7 font-medium text-white capitalize">
+                list of events
+              </DialogTitle>
+              <div className="w-full max-w-md px-4 flex flex-col">
+                <ul className='list-decimal'>
+                  {currentEvents.map((event) => (
+                    <SidebarEvent key={event.id} event={event} />
+                  ))}
+                </ul>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
     </>)}
     </>
   )
 }
 
 function renderEventContent(eventInfo) {
+  console.log(eventInfo, 'eventInfoeventInfo');
   return (
     <>
-      <b>{eventInfo.timeText}</b>
-      <i>{eventInfo.event.title}</i>
+      <b className='text-black'>{eventInfo.timeText}</b>
+      <i className='text-black'>{eventInfo.event.title}</i>
     </>
   )
 }
@@ -294,7 +341,7 @@ function SidebarEvent({ event }) {
   return (
     <li key={event.id}>
       <b>{formatDate(event.start, {year: 'numeric', month: 'short', day: 'numeric'})}</b>
-      <i>{event.title}</i>
+      <i> {event.title}</i>
     </li>
   )
 }
