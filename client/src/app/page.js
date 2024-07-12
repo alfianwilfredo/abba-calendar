@@ -87,7 +87,6 @@ export default function DemoApp() {
         id,
       },
     });
-    console.log(data.result);
     if (data.code === 200 && data.result.length) {
       toggleDetails();
       setSelectedEvent(data.result[0]);
@@ -156,8 +155,8 @@ export default function DemoApp() {
         </div>
       ) : (
         <>
-          <div className="flex justify-center items-center w-screen sm:py-12">
-            <div className="flex sm:flex-col lg:flex-row lg:gap-4">
+          <div className="sm:flex sm:flex-col sm:gap-4">
+            <div className="sm:flex sm:flex-col sm:gap-4 sm:p-4">
               <div className="">
                 <div>
                   <span className="capitalize">
@@ -175,7 +174,7 @@ export default function DemoApp() {
                     Show Weekends
                   </label>
                 </div>
-                <div className="lg:flex lg:flex-row lg:justify-center lg:gap-4">
+                <div className="sm:flex sm:flex-col sm:gap-4 lg:flex lg:flex-row lg:justify-center lg:gap-4">
                   <div>
                     {currentEvents.length ? (
                       <button
@@ -245,10 +244,7 @@ export default function DemoApp() {
                     >
                       new event
                     </DialogTitle>
-                    <button
-                      onClick={toggleCreateEvent}
-                      className="sm:w-5 lg:w-7"
-                    >
+                    <button onClick={toggleCreateEvent} className="sm:w-5">
                       <svg
                         className="w-full h-full"
                         viewBox="0 0 24 24"
@@ -383,26 +379,17 @@ export default function DemoApp() {
                   </div>
                   <div className="w-full max-w-md px-4">
                     <ul className="list-decimal">
-                      <li>
+                      <li className="ml-4">
                         Select dates and you will be prompted to create a new
                         event
                       </li>
-                      <li>Click an event to delete it</li>
+                      <li className="ml-4">Click an event to delete it</li>
                     </ul>
-                  </div>
-                  <div className="mt-4">
-                    <Button
-                      className="inline-flex items-center gap-2 rounded-md bg-gray-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-600 data-[focus]:outline-1 data-[focus]:outline-white data-[open]:bg-gray-700"
-                      onClick={toggleInstruction}
-                    >
-                      Got it, thanks!
-                    </Button>
                   </div>
                 </DialogPanel>
               </div>
             </div>
           </Dialog>
-
           <Dialog
             open={isDetailsOpen}
             as="div"
@@ -415,17 +402,43 @@ export default function DemoApp() {
                   transition
                   className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
                 >
-                  <DialogTitle
-                    as="h3"
-                    className="text-base/7 font-medium text-white capitalize"
-                  >
-                    event details
-                  </DialogTitle>
-                  <div className="w-full max-w-md px-4 flex flex-col">
+                  <div className="w-full max-w-md px-4 flex justify-between">
+                    <DialogTitle
+                      as="h3"
+                      className="text-base/7 font-medium text-white capitalize"
+                    >
+                      event details
+                    </DialogTitle>
+                    <button onClick={toggleDetails} className="sm:w-5 lg:w-7">
+                      <svg
+                        className="w-full h-full"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g
+                          id="SVGRepo_tracerCarrier"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></g>
+                        <g id="SVGRepo_iconCarrier">
+                          {" "}
+                          <path
+                            d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z"
+                            fill="#ffffff"
+                          ></path>{" "}
+                        </g>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="w-full max-w-md flex flex-col px-4 mt-2">
                     <span>name: {selectedEvent.name}</span>
                     <span>details: {selectedEvent.details}</span>
-                    <span>start: {selectedEvent.start}</span>
-                    <span>end: {moment(selectedEvent.end).calendar()}</span>
+                    <span>
+                      start: {moment(selectedEvent.start).format("llll")}
+                    </span>
+                    <span>end: {moment(selectedEvent.end).format("llll")}</span>
                   </div>
                 </DialogPanel>
               </div>
@@ -493,8 +506,8 @@ export default function DemoApp() {
 function renderEventContent(eventInfo) {
   return (
     <>
-      <b className="text-black">{eventInfo.timeText}</b>
-      <i className="text-black">{eventInfo.event.title}</i>
+      <b className="text-white">{eventInfo.timeText}</b>
+      <i className="text-white">{eventInfo.event.title}</i>
     </>
   );
 }
