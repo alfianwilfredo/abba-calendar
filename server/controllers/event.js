@@ -182,7 +182,7 @@ exports.update = async (req, res) => {
     in: "invalid :attribute",
   };
   let validation = new Validator(
-    { name, start_date, end_date, allDay },
+    { id, name, start_date, end_date, allDay },
     rules,
     error_msg
   );

@@ -99,12 +99,15 @@ export default function DemoApp() {
   }
 
   async function eventChangeHandler(info) {
-    console.log(info, "aaaaaaaaaaaaaaaaaassssssssss");
     let { data } = await axios({
       url: "http://localhost:8000/events/update",
       method: "patch",
-      params: {
+      data: {
         id: info.event.id,
+        name: info.event.title,
+        start_date: info.event.start,
+        end_date: info.event.end,
+        allDay: info.event.allDay,
       },
     });
     if (data.code === 200) {
