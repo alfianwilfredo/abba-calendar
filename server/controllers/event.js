@@ -5,13 +5,13 @@ const Helpers = require("../helpers/index");
 let Validator = require("validatorjs");
 
 exports.store = async (req, res) => {
-  let { name, details, start_date, end_date } = req.body;
+  let { name, start_date, end_date, allDay } = req.body;
   let moment_start = Moment(start_date).toString();
   let moment_end = Moment(end_date).toString();
   let id = await Helpers.generateId();
   let rules = {
     name: "required",
-    details: "required",
+    allDay: "required|boolean",
     start_date: "required|date|before:end_date",
     end_date: "required|date|after:start_date",
   };
@@ -19,7 +19,7 @@ exports.store = async (req, res) => {
     in: "invalid :attribute",
   };
   let validation = new Validator(
-    { name, details, start_date, end_date },
+    { name, start_date, end_date, allDay },
     rules,
     error_msg
   );
@@ -44,9 +44,9 @@ exports.store = async (req, res) => {
       await Event.create({
         id,
         name,
-        details,
         start_date: moment_start,
         end_date: moment_end,
+        allDay,
       });
       res.json({
         code: 201,
@@ -63,8 +63,8 @@ exports.store = async (req, res) => {
 exports.lists = async (req, res) => {
   const events = await Event.findAll();
   let result = [];
-  for await (let { id, name, details, start_date, end_date } of events) {
-    result.push({ id, title: name, details, start: start_date, end: end_date });
+  for await (let { id, name, start_date, end_date, allDay } of events) {
+    result.push({ id, title: name, start: start_date, end: end_date, allDay });
   }
   res.json({
     code: 200,

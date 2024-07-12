@@ -59,6 +59,28 @@ export default function DemoApp() {
     }
   }
 
+  async function storeEvent(info) {
+    let start = moment(info.event.start).format("YYYY-MM-DD HH:mm:ss");
+    let end = moment(info.event.end).format("YYYY-MM-DD HH:mm:ss");
+    let allDay = info.event.allDay;
+    let { data } = await axios({
+      url: "http://localhost:8000/events/store",
+      method: "POST",
+      data: {
+        name: info.event.title,
+        details: info.event.extendedProps.details,
+        start_date: start,
+        end_date: end,
+        allDay,
+      },
+    });
+    if (data.code === 200) {
+      alert(data.message[0]);
+    } else {
+      alert(data.message[0]);
+    }
+  }
+
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -103,7 +125,7 @@ export default function DemoApp() {
               eventClick={handleEventClick}
               eventsSet={handleEvents} // called after events are initialized/added/changed/removed
               eventAdd={(data) => {
-                console.log(data, "dataaaaaaaaaaa???");
+                storeEvent(data);
               }}
               eventChange={function () {
                 console.log("eventChange");
@@ -130,7 +152,7 @@ function renderEventContent(eventInfo) {
 
 function Sidebar({ weekendsVisible, handleWeekendsToggle, currentEvents }) {
   return (
-    <div className="demo-app-sidebar">
+    <div className="demo-app-sidebar h-screen sticky top-0">
       <div className="demo-app-sidebar-section">
         <h2>Instructions</h2>
         <ul>

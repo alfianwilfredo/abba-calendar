@@ -1,4 +1,4 @@
-let config = require('../config/db.config')
+let config = require("../config/db.config");
 const Sequelize = config.Sequelize;
 const sequelize = config.sequelize;
 
@@ -21,8 +21,8 @@ function table_event() {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      details: {
-        type: Sequelize.STRING,
+      allDay: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
       },
       start_date: {
@@ -33,7 +33,7 @@ function table_event() {
         //planning
         type: Sequelize.DATE,
         allowNull: false,
-      }
+      },
     },
     {
       underscored: true,
