@@ -20,24 +20,33 @@ export default function DemoApp() {
   function handleDateSelect(selectInfo) {
     let title = prompt("Please enter a new title for your event");
     let calendarApi = selectInfo.view.calendar;
-    calendarApi.unselect(); // clear date selection
+    // calendarApi.unselect(); // clear date selection
     if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-      });
+      storeEvent(selectInfo, title);
     }
   }
 
-  function handleEventClick(clickInfo) {
+  async function handleEventClick(clickInfo) {
     if (
       confirm(
         `Are you sure you want to delete the event '${clickInfo.event.title}'`
       )
     ) {
+      let { data } = await axios({
+        url: "http://localhost:8000/events/destroy",
+        method: "delete",
+        params: {
+          id: clickInfo.event.id,
+        },
+      });
+      if (data.code === 200) {
+        alert(data.message[0]);
+      } else {
+        alert(data.message[0]);
+      }
+      setCurrentEvents((prev) => {
+        return prev.filter((event) => event.id !== clickInfo.event.id);
+      });
       clickInfo.event.remove();
     }
   }
@@ -59,19 +68,43 @@ export default function DemoApp() {
     }
   }
 
-  async function storeEvent(info) {
-    let start = moment(info.event.start).format("YYYY-MM-DD HH:mm:ss");
-    let end = moment(info.event.end).format("YYYY-MM-DD HH:mm:ss");
-    let allDay = info.event.allDay;
+  async function storeEvent(info, name) {
+    let calendarApi = info.view.calendar;
+    calendarApi.unselect(); // clear date selection
+    let start = moment(info.start).format("YYYY-MM-DD HH:mm:ss");
+    let end = moment(info.end).format("YYYY-MM-DD HH:mm:ss");
+    let allDay = info.allDay;
     let { data } = await axios({
       url: "http://localhost:8000/events/store",
       method: "POST",
       data: {
-        name: info.event.title,
-        details: info.event.extendedProps.details,
+        name,
         start_date: start,
         end_date: end,
         allDay,
+      },
+    });
+    if (data.code === 201) {
+      calendarApi.addEvent({
+        id: data.result[0].id,
+        title: name,
+        start: info.startStr,
+        end: info.endStr,
+        allDay: info.allDay,
+      });
+      alert(data.message[0]);
+    } else {
+      alert(data.message[0]);
+    }
+  }
+
+  async function eventChangeHandler(info) {
+    console.log(info, "aaaaaaaaaaaaaaaaaassssssssss");
+    let { data } = await axios({
+      url: "http://localhost:8000/events/update",
+      method: "patch",
+      params: {
+        id: info.event.id,
       },
     });
     if (data.code === 200) {
@@ -127,8 +160,8 @@ export default function DemoApp() {
               eventAdd={(data) => {
                 storeEvent(data);
               }}
-              eventChange={function () {
-                console.log("eventChange");
+              eventChange={function (data) {
+                eventChangeHandler(data);
               }}
               eventRemove={function () {
                 console.log("eventRemove");
