@@ -38,7 +38,9 @@ export default function DemoApp() {
   }, []);
 
   function handleDateSelect(selectInfo) {
-    console.log(selectInfo, 'selectInfoselectInfo');
+    console.log(selectInfo.start);
+    setStartDate(moment(selectInfo.start).startOf('day').format('YYYY-MM-DD HH:mm:ss'))
+    setEndDate(moment(selectInfo.end).endOf('day').subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss'))
     toggleCreateEvent()
   }
   function handleEventClick(clickInfo) {
@@ -46,7 +48,6 @@ export default function DemoApp() {
   }
 
   let fetchDetails = async (id) => {
-    console.log(id, 'ididid');
     let { data } = await axios({
       method: 'get',
       url: 'http://localhost:8000/events/details',
@@ -328,7 +329,6 @@ export default function DemoApp() {
 }
 
 function renderEventContent(eventInfo) {
-  console.log(eventInfo, 'eventInfoeventInfo');
   return (
     <>
       <b className='text-black'>{eventInfo.timeText}</b>
