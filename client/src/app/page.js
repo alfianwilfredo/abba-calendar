@@ -120,7 +120,6 @@ export default function DemoApp() {
   useEffect(() => {
     fetchEvents();
   }, []);
-
   return (
     <>
       {isBusy ? (
@@ -166,9 +165,9 @@ export default function DemoApp() {
               eventChange={function (data) {
                 eventChangeHandler(data);
               }}
-              eventRemove={function () {
-                console.log("eventRemove");
-              }}
+              // eventRemove={function () {
+              //   console.log("eventRemove");
+              // }}
             />
           </div>
         </div>
