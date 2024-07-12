@@ -1,16 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatDate } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { INITIAL_EVENTS, createEventId } from "./event-utils";
-
+import axios from "axios";
+import moment from "moment";
 export default function DemoApp() {
   const [weekendsVisible, setWeekendsVisible] = useState(true);
   const [currentEvents, setCurrentEvents] = useState([]);
-
+  const [initialEvent, setInitialEvent] = useState(INITIAL_EVENTS);
+  const [isBusy, setIsBusy] = useState(true);
   function handleWeekendsToggle() {
     setWeekendsVisible(!weekendsVisible);
   }
@@ -18,9 +20,7 @@ export default function DemoApp() {
   function handleDateSelect(selectInfo) {
     let title = prompt("Please enter a new title for your event");
     let calendarApi = selectInfo.view.calendar;
-
     calendarApi.unselect(); // clear date selection
-
     if (title) {
       calendarApi.addEvent({
         id: createEventId(),
@@ -46,42 +46,76 @@ export default function DemoApp() {
     setCurrentEvents(events);
   }
 
+  async function fetchEvents() {
+    let { data } = await axios({
+      url: "http://localhost:8000/events/lists",
+    });
+    if (data.code === 200) {
+      setInitialEvent(data.result);
+      setIsBusy(false);
+    } else {
+      setIsBusy(false);
+      alert(data.message[0]);
+    }
+  }
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
   return (
-    <div className="demo-app">
-      <Sidebar
-        weekendsVisible={weekendsVisible}
-        handleWeekendsToggle={handleWeekendsToggle}
-        currentEvents={currentEvents}
-      />
-      <div className="demo-app-main">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
+    <>
+      {isBusy ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
           }}
-          initialView="dayGridMonth"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          weekends={weekendsVisible}
-          initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
-          select={handleDateSelect}
-          eventContent={renderEventContent} // custom render function
-          eventClick={handleEventClick}
-          eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-          eventAdd={function () {
-            console.log("eventAdd");
-          }}
-          /* you can update a remote database when these fire:
-          eventChange={function(){}}
-          eventRemove={function(){}}
-          */
-        />
-      </div>
-    </div>
+        >
+          <h3>Loading...</h3>
+        </div>
+      ) : (
+        <div className="demo-app">
+          <Sidebar
+            weekendsVisible={weekendsVisible}
+            handleWeekendsToggle={handleWeekendsToggle}
+            currentEvents={currentEvents}
+          />
+          <div className="demo-app-main">
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+              initialView="dayGridMonth"
+              editable={true}
+              selectable={true}
+              selectMirror={true}
+              dayMaxEvents={true}
+              weekends={weekendsVisible}
+              initialEvents={initialEvent} // alternatively, use the `events` setting to fetch from a feed
+              select={handleDateSelect}
+              eventContent={renderEventContent} // custom render function
+              eventClick={handleEventClick}
+              eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+              eventAdd={(data) => {
+                console.log(data, "dataaaaaaaaaaa???");
+              }}
+              eventChange={function () {
+                console.log("eventChange");
+              }}
+              eventRemove={function () {
+                console.log("eventRemove");
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
