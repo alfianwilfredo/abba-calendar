@@ -51,7 +51,12 @@ export default function DemoApp() {
   useEffect(() => {
     fetchEvent();
   }, []);
-
+  function resetForm() {
+    setName("");
+    setDetails("");
+    setStartDate("");
+    setEndDate("");
+  }
   function handleDateSelect(selectInfo) {
     if (selectInfo.view.type === "dayGridMonth") {
       setStartDate(
@@ -105,6 +110,7 @@ export default function DemoApp() {
   }
 
   function handleEvents(events) {
+    console.log(events, "eventseventseventseventsevents");
     setCurrentEvents(events);
   }
   async function createEventHandler() {
@@ -161,7 +167,12 @@ export default function DemoApp() {
                 <div>
                   <span className="capitalize">
                     new here? please read the instructions{" "}
-                    <button onClick={toggleInstruction}>here</button>
+                    <button
+                      className="hover:underline"
+                      onClick={toggleInstruction}
+                    >
+                      here
+                    </button>
                   </span>
                 </div>
                 <div>
@@ -179,19 +190,19 @@ export default function DemoApp() {
                     {currentEvents.length ? (
                       <button
                         onClick={toggleListEvent}
-                        className="bg-white font-semibold capitalize text-black w-full rounded py-2 px-4"
+                        className="bg-black font-semibold capitalize text-white w-full rounded py-2 px-4"
                       >
                         list events
                       </button>
                     ) : (
-                      <span className="bg-white text-black w-full rounded py-2 px-4">
+                      <span className="bg-black text-white w-full rounded py-2 px-4">
                         No events
                       </span>
                     )}
                   </div>
                   <div>
                     <Button
-                      className="bg-white text-black w-full rounded py-2 font-semibold px-4"
+                      className="bg-black text-white w-full rounded py-2 font-semibold px-4"
                       onClick={toggleCreateEvent}
                     >
                       Create Event
@@ -229,22 +240,29 @@ export default function DemoApp() {
             open={isCreateEventOpen}
             as="div"
             className="relative z-10 focus:outline-none"
-            onClose={toggleCreateEvent}
+            onClose={() => {
+              toggleCreateEvent(), resetForm();
+            }}
           >
             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
               <div className="flex min-h-full items-center justify-center p-4">
                 <DialogPanel
                   transition
-                  className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+                  className="w-full max-w-md rounded-xl bg-black/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
                 >
                   <div className="w-full max-w-md px-4 flex justify-between">
                     <DialogTitle
                       as="h3"
-                      className="text-base/7 font-medium text-white capitalize"
+                      className="text-base/7 font-medium  capitalize"
                     >
                       new event
                     </DialogTitle>
-                    <button onClick={toggleCreateEvent} className="sm:w-5">
+                    <button
+                      onClick={() => {
+                        toggleCreateEvent(), resetForm();
+                      }}
+                      className="sm:w-5"
+                    >
                       <svg
                         className="w-full h-full"
                         viewBox="0 0 24 24"
@@ -261,7 +279,7 @@ export default function DemoApp() {
                           {" "}
                           <path
                             d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z"
-                            fill="#ffffff"
+                            fill="#0F0F0F"
                           ></path>{" "}
                         </g>
                       </svg>
@@ -271,8 +289,8 @@ export default function DemoApp() {
                     <Field>
                       <Input
                         className={clsx(
-                          "mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
-                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                          "mt-3 block w-full rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25"
                         )}
                         type="text"
                         name="name"
@@ -284,8 +302,8 @@ export default function DemoApp() {
                     <Field>
                       <textarea
                         className={clsx(
-                          "mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
-                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                          "mt-3 block w-full rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25"
                         )}
                         name="details"
                         value={details}
@@ -296,8 +314,8 @@ export default function DemoApp() {
                     <Field>
                       <input
                         className={clsx(
-                          "mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
-                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                          "mt-3 block w-full rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25"
                         )}
                         type="datetime-local"
                         name="start_date"
@@ -309,8 +327,8 @@ export default function DemoApp() {
                     <Field>
                       <input
                         className={clsx(
-                          "mt-3 block w-full rounded-lg border-none bg-white/5 py-1.5 px-3 text-sm/6 text-white",
-                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                          "mt-3 block w-full rounded-lg border-none bg-black/5 py-1.5 px-3 text-sm/6",
+                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25"
                         )}
                         type="datetime-local"
                         name="end_date"
@@ -505,10 +523,10 @@ export default function DemoApp() {
 
 function renderEventContent(eventInfo) {
   return (
-    <>
-      <b className="text-white">{eventInfo.timeText}</b>
-      <i className="text-white">{eventInfo.event.title}</i>
-    </>
+    <div className="w-full max-w-md flex gap-x-2 rounded">
+      <b className="text-black">{eventInfo.timeText}</b>
+      <i className="text-black">{eventInfo.event.title}</i>
+    </div>
   );
 }
 
